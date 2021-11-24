@@ -11,4 +11,6 @@ Use this code to calculate the number of words and sessions spoken for each MP i
 Using the libraries for gendered Turkish names in this (https://github.com/eoner/turkce_isimler) depository, find the gender of MPs using code:gender_temp.ipynb
 The genders of some of the MPs with gender-neutral names are manually edited later when cleaning and merging data.
 
+For ease of replication, I have merged the resulting data on genders and speech data for each individual and upload that csv in this depository. You can use speech_data_genders.csv to skip the processes describes above.
+
 The rest of the cleaning, merging and analysis can be reproduced using this code: Cleaning_Merging_Analysis.R and election data available in this repository.
