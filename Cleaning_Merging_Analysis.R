@@ -22,7 +22,7 @@ write.csv(data_gendered,"data_gendered.csv",row.names = FALSE)
 MP_speech <- read.csv("data_gendered.csv",header=TRUE, stringsAsFactors = FALSE)
 
 
-#CLEAN MP DATA
+#CLEANING MP SPEECH DATA
 list <- c("ADINA","SÖZCÜSÜ","BAKANI","BAŞKAN")
 MP_name_clean <- MP_speech[grep(paste(list,collapse="|"), MP_speech$FULL_NAME), ]
 add_mp_speech_new <- MP_name_clean[c(1,2,3),]
@@ -50,7 +50,7 @@ MP_data_clean <- rbind(MP_name_clean, MP_speech_new)
 write.csv(MP_data_clean,"MP_data_clean.csv", row.names = FALSE)
 x <- read.csv("MP_data_clean.csv")
 
-####HERE CHECK GENDERS IN PYTHON- ADD GENDER &CLEAN AGAIN
+#### CHECK GENDERS IN PYTHON - ADD GENDER &CLEAN AGAIN
 
 c <- read.csv("cleaned_data_genders.csv", stringsAsFactors = FALSE)
 write_xlsx(c,"cleaned_data_genders.xlsx")
@@ -178,7 +178,7 @@ data_united_2015_2 <- data_united_2015_2[rowSums(is.na(data_united_2015_2)) == 0
 write.csv(data_united, "MP_SPEECH_ADAY_2015_2.csv",row.names = FALSE)
 write.csv(election_2015_2,"adaylar_2015_2_final.csv",row.names = FALSE)
 
-#2018 election
+#######2018 ELECTION
 
 election_2018 = read.xlsx(xlsxFile = "2018-seçim-edited.xlsx", colNames = FALSE)
 
@@ -218,7 +218,7 @@ election_2011$FULL_NAME <- trimws(election_2011$FULL_NAME, "r") #erase whitespac
 election_2018 <- election_2018[,c(2,3,7)]
 colnames(election_2018) <- c("EGITIM","SIRA","FULL_NAME")
 
-####2018 seçilenler
+####2018 ELECTED MPs
 elected_2018 = read.xlsx(xlsxFile = "MP-2018-BÜYÜK HARF.xlsx", colNames = FALSE)
 my_list <- list(elected_2018$X1)
 my_list <-unlist(my_list)
@@ -317,17 +317,12 @@ e2018 <- read.csv("MP_SPEECH_ADAY_2018.csv", stringsAsFactors = FALSE)
 
 all_data <- rbind(e2007,e2011,e2015_2)
 
-####### SIRA DEĞİŞİMİ BUL
+#######
 
 levels(all_adaylar$Dönem)
 all_adaylar$Dönem <- factor(all_adaylar$Dönem,levels=c("election_2007","election_2011",
                             "election_2015_2","election_2018"), ordered = TRUE)
 write_xlsx(all_adaylar,"ALL_ADAYLAR_son.xlsx")
-
-install.packages("data.table")
-library(data.table)
-x <- setDT(all_adaylar)[order(Dönem),Diff := -(shift(SIRA, type= 'lead') - SIRA) ,
-         by = NAME] #BİRDAHAKİ ADAY OLDUĞU ZAMAN NE KADAR DEĞİŞMİŞ YANİ MESELA 2011SIRASI-2007SIRASI FOR ALL ADAYLAR
 
 ALL_SPEECH <- read.csv("ALL_SPEECH.csv")
 ALL_SPEECH$Dönem <- NA
@@ -412,32 +407,6 @@ write.csv(b,"ALL_ADAYLAR_30_11.csv",row.names = FALSE)
   
 adaylar <- read.csv("ALL_ADAYLAR_30_11.csv")
 summary(adaylar)
-
-#######
-install.packages("gtsummary")
-library(gtsummary)
-library(tidyverse)
-
-data_descibe <- adaylar %>%
-  select(Gender,`Education Level`, Magnitude, Vulnerability)
-tbl_summary(data_descibe)
-
-colnames(adaylar) <- c("FULL_NAME","Name","Legislative Term", "List Position", "Elected", "Education Level","Change in List Position", "Constituency", "Gender", "Magnitude", "Vulnerability")
-
-data_descibe$Vulnerability <- as.character(data_descibe$Vulnerability)
-data_descibe$Gender <- as.factor(data_descibe$Gender)
-data_descibe$Vulnerability <- as.factor(data_descibe$Vulnerability)
-
-data_descibe$`Education Level` <- as.factor(data_descibe$`Education Level`)
-levels(data_descibe$`Education Level`) <- c("Primary School","Secondary School","Post-Secondary School")
-
-data_descibe$`Legislative Term` <- as.factor(data_descibe$`Legislative Term`)
-levels(data_descibe$`Legislative Term`) <- c("2007 Election","2011 Election", "2015 Election", "2018 Election")
-
-data_descibe <- adaylar %>%
-  select(Gender,`Education Level`, Magnitude, Vulnerability,`Legislative Term`)
-
-
 
 ####
 speech <- read.csv("ALL_SPEECH.csv")
@@ -595,27 +564,11 @@ final_data3$Name[23] <- "ABDULLAH DOĞRU"
 x_merged <- merge(x, final_data2, by="merge", all.y= TRUE)
 x_merged <- x_merged %>% distinct()
 
-model1 <- lm(data=x_merged,Change_in_list_position~Sessions_with_speech+Female)
-summary(model1)
 
 write_xlsx(x_merged,"x_merged.xlsx")
 x_merged <- read.xlsx("x_merged.xlsx")
 
-model3 <- lm(data=x_merged,Change_in_list_position~List_position+Sessions_with_speech+Female+Magnitude+Vulnerability+
-               Education_level+Female*Vulnerability+Sessions_with_speech*Female)
-summary(model3)
-
 x_merged$Female <- as.factor(x_merged$Female)
-
-model1 <- lm(formula = Change_in_list_position ~ Sessions_with_speech + List_position+
-     Word_spoken + Female + Magnitude + Vulnerability + Education_level + 
-     Vulnerability*Female + Sessions_with_speech * Female, data = final_data)
-summary(model1)
-
-
-model1 <- lm(formula = Change_in_list_position ~ List_position + Sessions_with_speech + 
-               Word_spoken + Female + Magnitude + Vulnerability + Education_level + 
-               Vulnerability*Female + Sessions_with_speech * Female, data = final_data)
 
 
 x <- read.csv("final_data3_genders.csv")
@@ -647,9 +600,6 @@ write.csv(x,"FINAL_X.csv")
 write_xlsx(x,"FINAL_X.xlsx")
 
 x <- read.xlsx("FINAL_X.xlsx")
-
-
-
 
 
 
@@ -720,28 +670,6 @@ a <- read_xlsx("FINAL_X3.xlsx")
 install.packages("stargazer")
 library(stargazer)
 
-stargazer(a2)
-summary(a)
-
-a2 <- a2[,-c(2)]
-
-a2$Higher_Education <- ifelse(a2$Education_level=="YÜKSEK", 1, 0)
-levels(a$Education_level) <- c("Primary Education","Secondary Education","Post-Secondary Education")
-a$Vulnerability <- as.factor(a$Vulnerability)
-
-model1 <- lm(formula = Change_in_list_position ~ Sessions_with_speech + 
-               Magnitude + Vulnerability+ Education_level + List_position, data = a)
-model2 <- lm(formula = Change_in_list_position ~ Female + Magnitude + 
-               Vulnerability+ Education_level + List_position, data = a)
-model3 <- lm(formula = Change_in_list_position ~ Sessions_with_speech+ Female + Magnitude + 
-               Vulnerability+ Education_level + List_position, data = a)
-model4 <- lm(formula = Change_in_list_position ~ Sessions_with_speech + 
-               +      Word_spoken + Female + Magnitude + Education_level * Female + 
-               +      Sessions_with_speech * Female + List_position * Female, data = a)
-
-
-
-stargazer(model1, model2, model3, model4,title="Results", align=TRUE)
 
 partiler <- read.csv("milletvekilleri.csv")
 partiler <- subset(partiler, Dönem>=23)
@@ -782,62 +710,8 @@ unique(a3$Party_Female_Ratio)
 which(a3$Party_Female_Ratio==Inf)
 a3$Party_Female_Ratio[c(570,1421,1854)] <- 0
 
-  
 
-
-
-model1 <- lm(formula = Change_in_list_position ~ Sessions_with_speech + Word_spoken+
-               Magnitude + Education_level +Vulnerability + List_position+ Government_Party, data = a3)
-
-model2 <- lm(formula = Change_in_list_position ~ Female + Magnitude + 
-               Education_level+ List_position +Vulnerability +Government_Party*Female, data = a3)
-
-model3 <- lm(formula = Change_in_list_position ~ Sessions_with_speech+Word_spoken+ Female + Magnitude + 
-               Vulnerability+ Education_level + List_position +Government_Party*Female, data = a3)
-
-model4 <- lm(formula = Change_in_list_position ~ Sessions_with_speech:Female+Word_spoken:Female+
-               Magnitude + Education_level +Vulnerability + List_position+ Government_Party, data = a3)
-
-summary(model1)
-summary(model2)
-summary(model3)
-summary(model4)
-
-stargazer(model1, model2, model3, model4, title="Regression Results",
-align=TRUE,omit.stat=c("LL","ser","f"), no.space=TRUE)
-
-model1 <- lm(formula = List_position ~ Sessions_with_speech + Word_spoken + Vulnerability + as.factor(Name), data = a3)
-model3 <- lm(formula = List_position ~ Sessions_with_speech*Female+Word_spoken+ Vulnerability + as.factor(Name), data = a3)
-model4 <- lm(formula = List_position ~ Sessions_with_speech*Female+Word_spoken*Female +  Vulnerability + as.factor(Name), data = a3)
-
-summary(model1)
-summary(model2)
-summary(model3)
-
-stargazer(model1, model3, model4,
-          omit = c("as.factor"), type ="text")
-
-
-model1 <- lm(formula = List_position ~ Sessions_with_speech + log(Word_spoken+1) + log(Sentence_spoken+1) + as.factor(Name), data = a3)
-model2 <- lm(formula = List_position ~ Sessions_with_speech*as.factor(Female)+log(Word_spoken+1)+ log(Sentence_spoken+1) + as.factor(Name), data = a3)
-model3 <- lm(formula = List_position ~ Sessions_with_speech+log(Word_spoken+1)*as.factor(Female)+ log(Sentence_spoken+1) + as.factor(Name), data = a3)
-model4 <- lm(formula = List_position ~ Sessions_with_speech+log(Word_spoken+1) + log(Sentence_spoken+1) *as.factor(Female) + as.factor(Name), data = a3)
-model5 <- lm(formula = List_position ~ Sessions_with_speech*Female+log(Word_spoken+1)*as.factor(Female) +log(Sentence_spoken+1)*Female + as.factor(Name), data = a3) 
-
-stargazer(model1, model2, model3,model4,model5,
-          omit = c("as.factor"), type ="text")
-
-install.packages("lfe")
-library("lfe")
-
-model1 <-felm(formula = List_position ~ Sessions_with_speech + log(Word_spoken+1) + log(Sentence_spoken+1) | Name | 0 | Legislative_term, data = a3)
-model2 <- felm(formula = List_position ~ Sessions_with_speech*Female+log(Word_spoken+1)+ log(Sentence_spoken+1) + as.factor(Name) | Name | 0 | Legislative_term, data = a3)
-model3 <- felm(formula = List_position ~ Sessions_with_speech+log(Word_spoken+1)*Female+ log(Sentence_spoken+1)   | Name | 0 | Legislative_term, data = a3)
-model4 <- felm(formula = List_position ~ Sessions_with_speech+log(Word_spoken+1) + log(Sentence_spoken+1) *Female  | Name | 0 | Legislative_term, data = a3)
-model5 <- felm(formula = List_position ~ Sessions_with_speech*Female+log(Word_spoken+1)*Female +  +log(Sentence_spoken+1)*Female | Name | 0 | Legislative_term, data = a3)
-
-
-##########THE ONE
+########## PANEL DESIGN WITH FIXED INDIVIDUAL EFFECTS
 model1 <- felm(formula = List_position ~ Sessions_with_speech  | Name | 0 | Legislative_term, data = a3)
 model2 <- felm(formula = List_position ~ log(Word_spoken+1)  | Name | 0 | Legislative_term, data = a3)
 model3 <- felm(formula = List_position ~ log(Sentence_spoken+1)  | Name | 0 | Legislative_term, data = a3)
@@ -851,7 +725,7 @@ stargazer(model1, model2, model3,model4,model5,model6,
           omit = c("as.factor"))
 
 
-############ WITH ELECTION FIXED EFFECTS
+############ PANEL DESIGN WITH ELECTION FIXED EFFECTS
 model1 <- felm(formula = List_position ~ Sessions_with_speech  | Name + Legislative_term | 0 | Legislative_term, data = a3)
 model2 <- felm(formula = List_position ~ log(Word_spoken+1)  | Name + Legislative_term | 0 | Legislative_term, data = a3)
 model3 <- felm(formula = List_position ~ log(Sentence_spoken+1)  | Name + Legislative_term | 0 | Legislative_term, data = a3)
@@ -864,7 +738,7 @@ stargazer(model1, model2, model3,model4,model5,model6,
 stargazer(model1, model2, model3,model4,model5,model6,
           omit = c("as.factor"))
 
-############ SUBSET PARTIES
+############ SUBSET PARTIES FOR PARTY-BASED PANEL DATA ANALYSIS
 
 unique(a3$Parti)
 
@@ -920,7 +794,8 @@ stargazer(model4_akp, model4_chp, model4_mhp,model4_hdp,model5_akp, model5_chp, 
           omit = c("as.factor"),type ="text")
 stargazer(model4_akp, model4_chp, model4_mhp,model4_hdp,model5_akp, model5_chp, model5_mhp,model5_hdp,
           omit = c("as.factor"))
-#####
+
+##### GET DATA FOR TABLE 1
 
 a3$Legislative_term <- as.factor(a3$Legislative_term)
 
@@ -935,38 +810,6 @@ x <- rbind(x1,x2,x3,x4)
 
 
 x <- x[,Parti=="AK Parti"|"CHP"|"MHP"|"HDP"]
-
-
-
-######
-
-a3 <- read.xlsx("a2.xlsx", rowNames = FALSE)
-adaylar <- read.csv("ALL_ADAYLAR_30_11.csv")
-
-unique(a3$Legislative_term)
-
-adaylar$Dönem <- as.factor(adaylar$Dönem)
-levels(adaylar$Dönem) <- c("2002_Election","2007_Election","2011_Election","2015_Election")
-adaylar$merger <- paste0(adaylar$NAME,adaylar$Dönem)
-a3$merger <- paste0(a3$Name,a3$Legislative_term)
-adaylar <- adaylar[,c(4,12)]
-
-data_united <- merge(adaylar, a3, by="merger", all.y = TRUE)
-
-
-model1 <- felm(formula = SIRA~ Sessions_with_speech  | Name | 0 | Legislative_term, data = data_united)
-model2 <- felm(formula = SIRA ~ log(Word_spoken+1)  | Name | 0 | Legislative_term, data = data_united)
-model3 <- felm(formula = SIRA ~ log(Sentence_spoken+1)  | Name | 0 | Legislative_term, data = data_united)
-model4 <- felm(formula = SIRA ~ Sessions_with_speech+ Sessions_with_speech:Female | Name | 0 | Legislative_term, data = data_united)
-model5 <- felm(formula = SIRA ~ log(Word_spoken+1) + log(Word_spoken+1):Female  | Name | 0 | Legislative_term, data = data_united)
-model6 <- felm(formula = SIRA~ log(Sentence_spoken+1) +  log(Sentence_spoken+1):Female  | Name | 0 | Legislative_term, data =data_united)
-
-stargazer(model1, model2, model3,model4,model5,model6,
-          omit = c("as.factor"),type ="text")
-stargazer(model1, model2, model3,model4,model5,model6,
-          omit = c("as.factor"))
-
-library(stargazer)
 
 
 
